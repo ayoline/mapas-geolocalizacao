@@ -12,6 +12,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Completer<GoogleMapController> _controller = Completer();
 
+  _onMapCreated(GoogleMapController googleMapController) {
+    _controller.complete(googleMapController);
+  }
+
+  _movimentarCamera() async {
+    GoogleMapController googleMapController = await _controller.future;
+    googleMapController
+        .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(-11.076070129499586, -37.14183652655418),
+      zoom: 19, // muda o zoom da camera
+      tilt: 30, // muda o angulo da camera
+      bearing: 30, // rotaciona a camera
+    )));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,10 +41,13 @@ class _HomePageState extends State<HomePage> {
             target: LatLng(-11.076070129499586, -37.14183652655418),
             zoom: 16,
           ),
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
+          onMapCreated: _onMapCreated,
         ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.done),
+        onPressed: _movimentarCamera,
       ),
     );
   }
