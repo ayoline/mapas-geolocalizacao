@@ -12,6 +12,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Completer<GoogleMapController> _controller = Completer();
 
+  // Set é como um Map mas sem o índice, que usa apenas uma posição
+  Set<Marker> _marcadores = {};
+
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
   }
@@ -27,6 +30,51 @@ class _HomePageState extends State<HomePage> {
     )));
   }
 
+  _carregarMarcadores() {
+    Set<Marker> _marcadoresLocal = {};
+
+    Marker marcadorMercado = Marker(
+      markerId: MarkerId("marcador-Mercado"),
+      position: LatLng(-11.09611097535822, -37.13930358541416),
+      // Adiciona um título ao marcador
+      infoWindow: InfoWindow(
+        title: "Mercado Passeo",
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        // muda a cor padrão do icone
+        BitmapDescriptor.hueBlue,
+      ),
+      onTap: () {
+        print("Mercado Clicado!!");
+      },
+    );
+
+    Marker marcadorIgreja = Marker(
+      markerId: MarkerId("marcador-Igreja"),
+      position: LatLng(-11.097121315494359, -37.138092648056215),
+      infoWindow: InfoWindow(
+        title: "Igreja Batista",
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        // muda a cor padrão do icone
+        BitmapDescriptor.hueOrange,
+      ),
+    );
+
+    _marcadoresLocal.add(marcadorMercado);
+    _marcadoresLocal.add(marcadorIgreja);
+
+    setState(() {
+      _marcadores = _marcadoresLocal;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarMarcadores();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,11 +85,11 @@ class _HomePageState extends State<HomePage> {
         child: GoogleMap(
           mapType: MapType.normal,
           initialCameraPosition: CameraPosition(
-            // -11.076070129499586, -37.14183652655418
-            target: LatLng(-11.076070129499586, -37.14183652655418),
+            target: LatLng(-11.09611097535822, -37.13930358541416),
             zoom: 16,
           ),
           onMapCreated: _onMapCreated,
+          markers: _marcadores,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
