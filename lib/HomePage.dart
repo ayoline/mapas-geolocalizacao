@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage> {
 
   // Set é como um Map mas sem o índice, que usa apenas uma posição
   Set<Marker> _marcadores = {};
+  Set<Polygon> _polygons = {};
 
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
@@ -67,6 +68,28 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _marcadores = _marcadoresLocal;
     });
+
+    Set<Polygon> listaPolygons = {};
+    Polygon polygon1 = Polygon(
+        polygonId: PolygonId("polygon1"),
+        fillColor: Colors.green,
+        strokeColor: Colors.red,
+        strokeWidth: 10,
+        points: [
+          LatLng(-11.091495648956094, -37.13668947232826),
+          LatLng(-11.088264300963973, -37.134143529092015),
+          LatLng(-11.089819235988399, -37.14056779130052),
+        ],
+        consumeTapEvents: true, // Faz com que a imagem seja clicável
+        onTap: () {
+          print("clicado na área");
+        });
+
+    listaPolygons.add(polygon1);
+
+    setState(() {
+      _polygons = listaPolygons;
+    });
   }
 
   @override
@@ -90,6 +113,7 @@ class _HomePageState extends State<HomePage> {
           ),
           onMapCreated: _onMapCreated,
           markers: _marcadores,
+          polygons: _polygons,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
