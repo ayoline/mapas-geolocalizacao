@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,6 +18,47 @@ class _HomePageState extends State<HomePage> {
   Set<Polygon> _polygons = {};
   Set<Polyline> _polylines = {};
 
+  @override
+  void initState() {
+    super.initState();
+    _carregarMarcadores();
+    _recuperarLocalizacaoAtual();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Mapas e Geolocalização"),
+      ),
+      body: Container(
+        child: GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition: CameraPosition(
+            target: LatLng(-11.095173932052713, -37.13397389842669),
+            zoom: 15,
+          ),
+          onMapCreated: _onMapCreated,
+          markers: _marcadores,
+          polygons: _polygons,
+          polylines: _polylines,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.done),
+        onPressed: _movimentarCamera,
+      ),
+    );
+  }
+
+  _recuperarLocalizacaoAtual() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+    );
+    print("localizacao atual: " + position.toString());
+  }
+
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
   }
@@ -25,7 +67,7 @@ class _HomePageState extends State<HomePage> {
     GoogleMapController googleMapController = await _controller.future;
     googleMapController
         .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(-11.076070129499586, -37.14183652655418),
+      target: LatLng(-11.082768893652867, -37.14316208940462),
       zoom: 19, // muda o zoom da camera
       tilt: 30, // muda o angulo da camera
       bearing: 30, // rotaciona a camera
@@ -110,38 +152,5 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _polylines = listaPolylines;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _carregarMarcadores();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Mapas e Geolocalização"),
-      ),
-      body: Container(
-        child: GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: CameraPosition(
-            target: LatLng(-11.095173932052713, -37.13397389842669),
-            zoom: 15,
-          ),
-          onMapCreated: _onMapCreated,
-          markers: _marcadores,
-          polygons: _polygons,
-          polylines: _polylines,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.done),
-        onPressed: _movimentarCamera,
-      ),
-    );
   }
 }
