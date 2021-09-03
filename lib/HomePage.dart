@@ -22,7 +22,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _carregarMarcadores();
-    _recuperarLocalizacaoAtual();
+    _recuperarLocalizacaoAtual(); // apenas recupera quando o app inicia
+    _adicionarListenerLocalizacao(); // sempre vai estar monitorando a localização
   }
 
   @override
@@ -34,17 +35,16 @@ class _HomePageState extends State<HomePage> {
       body: Container(
         child: GoogleMap(
           mapType: MapType.normal,
-          initialCameraPosition: CameraPosition(
-            target: LatLng(-11.095173932052713, -37.13397389842669),
-            zoom: 15,
-          ),
+          initialCameraPosition: _cameraPosition,
           onMapCreated: _onMapCreated,
           markers: _marcadores,
           polygons: _polygons,
           polylines: _polylines,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.done),
         onPressed: _movimentarCamera,
@@ -52,26 +52,52 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _recuperarLocalizacaoAtual() async {
-    Position position = await Geolocator.getCurrentPosition(
+  // Adiciona um listener para sempre marcar a localização atual do usuário
+  _adicionarListenerLocalizacao() {
+    Geolocator.getPositionStream(
+      distanceFilter: 5, // monitora o usurio para atualizar a cada 5metros
       desiredAccuracy: LocationAccuracy.best,
-    );
-    print("localizacao atual: " + position.toString());
+    ).listen((Position position) {
+      setState(() {
+        _cameraPosition = CameraPosition(
+          target: LatLng(position.latitude, position.longitude),
+          zoom: 16,
+        );
+      });
+    });
   }
 
-  _onMapCreated(GoogleMapController googleMapController) {
-    _controller.complete(googleMapController);
-  }
+  CameraPosition _cameraPosition = CameraPosition(
+    target: LatLng(-11.095173932052713, -37.13397389842669),
+    zoom: 15,
+  );
 
   _movimentarCamera() async {
     GoogleMapController googleMapController = await _controller.future;
     googleMapController
         .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(-11.082768893652867, -37.14316208940462),
-      zoom: 19, // muda o zoom da camera
+      target: LatLng(-11.101333948756727, -37.151002090045964),
+      zoom: 16, // muda o zoom da camera
       tilt: 30, // muda o angulo da camera
       bearing: 30, // rotaciona a camera
     )));
+  }
+
+  _recuperarLocalizacaoAtual() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+    );
+
+    setState(() {
+      _cameraPosition = CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 16,
+      );
+    });
+  }
+
+  _onMapCreated(GoogleMapController googleMapController) {
+    _controller.complete(googleMapController);
   }
 
   _carregarMarcadores() {
