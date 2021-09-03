@@ -15,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   // Set é como um Map mas sem o índice, que usa apenas uma posição
   Set<Marker> _marcadores = {};
   Set<Polygon> _polygons = {};
+  Set<Polyline> _polylines = {};
 
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
@@ -90,6 +91,25 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _polygons = listaPolygons;
     });
+
+    Set<Polyline> listaPolylines = {};
+    Polyline polyline1 = Polyline(
+      polylineId: PolylineId("polyline1"),
+      color: Colors.blue,
+      width: 10,
+      startCap: Cap.roundCap, // começo da linha fica redondo
+      endCap: Cap.roundCap, // final da linha fica redondo
+      points: [
+        LatLng(-11.1017041273015, -37.127914375137706),
+        LatLng(-11.098688573157276, -37.13650314051403),
+        LatLng(-11.096111151774886, -37.139681246356645),
+      ],
+    );
+
+    listaPolylines.add(polyline1);
+    setState(() {
+      _polylines = listaPolylines;
+    });
   }
 
   @override
@@ -108,12 +128,13 @@ class _HomePageState extends State<HomePage> {
         child: GoogleMap(
           mapType: MapType.normal,
           initialCameraPosition: CameraPosition(
-            target: LatLng(-11.09611097535822, -37.13930358541416),
-            zoom: 16,
+            target: LatLng(-11.095173932052713, -37.13397389842669),
+            zoom: 15,
           ),
           onMapCreated: _onMapCreated,
           markers: _marcadores,
           polygons: _polygons,
+          polylines: _polylines,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
